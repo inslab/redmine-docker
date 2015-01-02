@@ -23,11 +23,16 @@ ADD assets/config/ /app/setup/config/
 ADD assets/init /app/init
 RUN chmod 755 /app/init
 
+ADD createdb.sh /app/setup/createdb.sh
+RUN chmod 777 /app/setup/createdb.sh
+
 EXPOSE 80
 EXPOSE 443
 
 VOLUME ["/home/redmine/data"]
 VOLUME ["/var/log/redmine"]
+
+CMD ["/app/setup/createdb.sh"]
 
 ENTRYPOINT ["/app/init"]
 CMD ["app:start"]
