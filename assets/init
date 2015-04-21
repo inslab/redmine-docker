@@ -258,7 +258,7 @@ if [ "${DB_TYPE}" == "postgres" ]; then
   sudo -u redmine -H sed 's/reconnect: false/#reconnect: false/' -i config/database.yml
 elif [ "${DB_TYPE}" == "mysql" ]; then
   # database creation
-  #mysql --host=${DB_HOST} --port=${DB_PORT} --user=${DB_USER} --password=${DB_PASS} --execute="create database if not exists ${DB_NAME}"
+  mysql --host=${DB_HOST} --port=${DB_PORT} --user=${DB_USER} --password=${DB_PASS} --execute="create database if not exists ${DB_NAME}"
   sudo -u redmine -H sed 's/{{DB_ADAPTER}}/mysql2/' -i config/database.yml
   sudo -u redmine -H sed 's/{{DB_ENCODING}}/utf8/' -i config/database.yml
   sudo -u redmine -H sed 's/#reconnect: false/reconnect: false/' -i config/database.yml
