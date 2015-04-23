@@ -2,14 +2,15 @@
 set -e
 
 INSTALL_DIR="/root/redmine/install"
-CONFIG_DIR="${INSTALL_DIR}/config"
+#CONFIG_DIR="${INSTALL_DIR}/config"
 DATA_DIR="/root/redmine/data"
+CONFIG_DIR="${DATA_DIR}/config"
 SSL_CERTIFICATES_DIR="${DATA_DIR}/certs"
 
 # restore config
 if [ ! -f ${CONFIG_DIR}/database.yml ]
 then
-    cp -rf /root/config/* ${CONFIG_DIR}/
+    cp -rf /root/config ${CONFIG_DIR}
 fi
 
 SETUP_DIR="/app/setup"
@@ -214,6 +215,8 @@ chmod 755 ${DATA_DIR}
 chmod +x ${DATA_DIR}
 
 cd ${INSTALL_DIR}
+rm -rf config
+ln -sf ${CONFIG_DIR} config
 
 # copy configuration templates
 case "${REDMINE_HTTPS}" in
