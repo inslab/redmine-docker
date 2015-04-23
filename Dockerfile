@@ -28,7 +28,7 @@ EXPOSE 443
 
 ENV REDMINE_RELATIVE_URL_ROOT /redmine
 
-VOLUME ["/home/redmine/data"]
+VOLUME ["/root/redmine/data"]
 VOLUME ["/var/log/redmine"]
 
 ENTRYPOINT ["/app/init"]

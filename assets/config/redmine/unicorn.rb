@@ -20,7 +20,7 @@ worker_processes {{UNICORN_WORKERS}}
 # as root unless it's from system init scripts.
 # If running the master process as root and the workers as an unprivileged
 # user, do this to switch euid/egid in the workers (also chowns logs):
-user "redmine", "redmine"
+user "root", "root"
 
 # Help ensure your application will always spawn in the symlinked
 # "current" directory that Capistrano sets up.
@@ -97,7 +97,7 @@ after_fork do |server, worker|
   defined?(ActiveRecord::Base) and
     ActiveRecord::Base.establish_connection
 
-	worker.user('redmine', 'redmine') if Process.euid == 0
+	worker.user('root', 'root') if Process.euid == 0
 
   # if preload_app is true, then you may also want to check and
   # restart any other shared sockets/descriptors such as Memcached,

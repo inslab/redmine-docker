@@ -2,8 +2,8 @@
 set -e
 
 REDMINE_VERSION=2.6.0
-INSTALL_DIR="/home/redmine/redmine"
-DATA_DIR="/home/redmine/data"
+INSTALL_DIR="/root/redmine/install"
+DATA_DIR="/root/redmine/data"
 
 SETUP_DIR="/app/setup"
 GEM_CACHE_DIR="${SETUP_DIR}/cache"
@@ -15,24 +15,20 @@ apt-get update
 apt-get install -y libcurl4-openssl-dev libssl-dev libmagickcore-dev libmagickwand-dev \
   libmysqlclient-dev libpq-dev libxslt1-dev libffi-dev libyaml-dev zlib1g-dev
 
-# add redmine user
-adduser --disabled-login --gecos 'Redmine' redmine
-passwd -d redmine
-
 # set PATH for redmine cron jobs
 cat > /tmp/cron.redmine <<EOF
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 EOF
-crontab -u redmine /tmp/cron.redmine
+crontab /tmp/cron.redmine
 rm -rf /tmp/cron.redmine
 
 # create symlink to ${DATA_DIR}/dotfiles/.ssh
-rm -rf /home/redmine/.ssh
-sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.ssh /home/redmine/.ssh
+rm -rf /root/.ssh
+ln -s ${DATA_DIR}/dotfiles/.ssh /root/.ssh
 
 # create symlink to ${DATA_DIR}/dotfiles/.subversion
-rm -rf /home/redmine/.subversion
-sudo -u redmine -H ln -s ${DATA_DIR}/dotfiles/.subversion /home/redmine/.subversion
+rm -rf /root/.subversion
+ln -s ${DATA_DIR}/dotfiles/.subversion /root/.subversion
 
 # install redmine, use local copy if available
 mkdir -p ${INSTALL_DIR}
@@ -69,7 +65,7 @@ fi
 # some gems complain about missing database.yml, shut them up!
 cp config/database.yml.example config/database.yml
 
-bundle install --without development tests --path vendor/bundle
+bundle install --without development test --path vendor/bundle
 
 # finalize redmine installation
 mkdir -p tmp tmp/pdf tmp/pids/ tmp/sockets/
@@ -90,14 +86,14 @@ rm -rf log
 ln -sf /var/log/redmine/redmine log
 
 # fix permissions
-chmod -R u+rwX files tmp
-chown -R redmine:redmine ${INSTALL_DIR}
+#chmod -R u+rwX files tmp
+chown -R root:root ${INSTALL_DIR}
 
 # disable default nginx configuration
 rm -f /etc/nginx/sites-enabled/default
 
 # run nginx as redmine user
-sed 's/user www-data/user redmine/' -i /etc/nginx/nginx.conf
+sed 's/user www-data/user root/' -i /etc/nginx/nginx.conf
 
 # move supervisord.log file to /var/log/redmine/supervisor/
 sed 's|^logfile=.*|logfile=/var/log/redmine/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
@@ -163,9 +159,9 @@ cat > /etc/supervisor/conf.d/unicorn.conf <<EOF
 [program:unicorn]
 priority=10
 directory=${INSTALL_DIR}
-environment=HOME=/home/redmine
+environment=HOME=/root
 command=bundle exec unicorn_rails -E production -c ${INSTALL_DIR}/config/unicorn.rb
-user=redmine
+user=root
 autostart=true
 autorestart=true
 stopsignal=QUIT
@@ -193,3 +189,6 @@ apt-get purge -y --auto-remove \
 
 # cleanup
 rm -rf /var/lib/apt/lists/* # 20140918
+
+# backup config
+cp -rf ${INSTALL_DIR}/config /root/config
