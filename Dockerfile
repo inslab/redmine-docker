@@ -1,5 +1,5 @@
 FROM sameersbn/ubuntu:14.04.20141026
-MAINTAINER sameer@damagehead.com
+MAINTAINER Sunchan Lee <sunchanlee@inslab.co.kr>
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
  && echo "deb http://ppa.launchpad.net/brightbox/ruby-ng/ubuntu trusty main" >> /etc/apt/sources.list \
@@ -27,6 +27,10 @@ EXPOSE 80
 EXPOSE 443
 
 ENV REDMINE_RELATIVE_URL_ROOT /redmine
+
+#ENV LDAP_HOST
+#ENV LDAP_PORT
+#ENV LDAP_BASE_DN
 
 VOLUME ["/root/redmine/data"]
 VOLUME ["/var/log/redmine"]

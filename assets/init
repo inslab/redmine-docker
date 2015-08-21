@@ -426,6 +426,15 @@ if [ "${REDMINE_VERSION}" != "${CURRENT_VERSION}" ]; then
   echo "${REDMINE_VERSION}" | tee --append ${DATA_DIR}/tmp/VERSION >/dev/null
 fi
 
+# ldap setting only for mysql
+if [ -n "$LDAP_HOST" ] && [ -n "$LDAP_PORT" ] && [ -n "$LDAP_BASE_DN" ] && [ $DB_TYPE = "mysql" ]
+then
+    echo "-> LDAP setting"
+    mysql -h ${DB_HOST} -P ${DB_PORT} -u ${DB_USER} -p${DB_PASS} -e "INSERT INTO ${DB_NAME}.auth_sources (type, name, host, port, account, account_password, base_dn, attr_login, attr_firstname, attr_lastname, attr_mail, onthefly_register, tls, filter) VALUES ('AuthSourceLdap', '$LDAP_HOST', '$LDAP_HOST', $LDAP_PORT, '', '', '$LDAP_BASE_DN', 'uid', 'givenName', 'sn', 'mail', true, false, '');"
+else
+    echo "Skipped LDAP setting"
+fi
+
 # create a cronjob to periodically fetch commits
 case "${REDMINE_FETCH_COMMITS}" in
   hourly|daily|monthly)
