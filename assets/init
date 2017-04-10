@@ -17,14 +17,13 @@ SETUP_DIR="/app/setup"
 SYSCONF_TEMPLATES_DIR="${SETUP_DIR}/config"
 USERCONF_TEMPLATES_DIR="${DATA_DIR}/config"
 
-DB_HOST=${DB_HOST:-localhost}
-DB_PORT=${DB_PORT:-3306}
-DB_ROOT_PASS=${DB_ROOT_PASS:-}
+DB_HOST=${DB_HOST:-}
+DB_PORT=${DB_PORT:-}
 DB_NAME=${DB_NAME:-}
 DB_USER=${DB_USER:-}
 DB_PASS=${DB_PASS:-}
 DB_POOL=${DB_POOL:-5}
-DB_TYPE=${DB_TYPE:-mysql}
+DB_TYPE=${DB_TYPE:-}
 
 MEMCACHED_HOST=${MEMCACHED_HOST:-}
 MEMCACHED_PORT=${MEMCACHED_PORT:-}
@@ -138,14 +137,13 @@ cat > /root/redmine/data/config/createdb.sql <<EOF
   USE mysql;
   FLUSH PRIVILEGES;
   GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-  UPDATE user SET password=PASSWORD("$DB_ROOT_PASS") WHERE user='root';
+  UPDATE user SET password=PASSWORD("$DB_PASS") WHERE user='root';
 
   CREATE DATABASE $DB_NAME;
-  FLUSH PRIVILEGES;
-
   CREATE USER '$DB_USER' IDENTIFIED BY '$DB_PASS';
   GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';
-  GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+  GRANT ALL ON $DB_NAME.* TO '$DB_USER'@'$DB_HOST' IDENTIFIED BY '$DB_PASS';
+  FLUSH PRIVILEGES;
 EOF
 
   mysqld --bootstrap --verbose=0 < /root/redmine/data/config/createdb.sql
