@@ -16,6 +16,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/* # 20140918
 
+RUN sed -i 's/key_buffer/key_buffer_size/g' /etc/mysql/my.cnf
+
 ADD assets/setup/ /app/setup/
 RUN chmod 755 /app/setup/install
 RUN /app/setup/install

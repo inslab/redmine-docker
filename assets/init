@@ -117,6 +117,19 @@ case "${DB_TYPE}" in
     ;;
 esac
 
+cat > /root/redmine/data/config/createdb.sql <<EOF
+  USE mysql;
+  FLUSH PRIVILEGES;
+  GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+  UPDATE user SET password=PASSWORD("$DB_PASS") WHERE user='root';
+
+  CREATE DATABASE $DB_NAME;
+  CREATE USER '$DB_USER' IDENTIFIED BY '$DB_PASS';
+  GRANT ALL ON ${DB_NAME}.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';
+  GRANT ALL ON ${DB_NAME}.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
+  FLUSH PRIVILEGES;
+EOF
+
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
 	if [ "${DB_TYPE}" == "postgres" ]; then
@@ -131,22 +144,8 @@ if [ "${DB_HOST}" == "localhost" ]; then
 	# initialize MySQL data directory
 	if [ ! -d /var/lib/mysql/mysql ]; then
 		mysql_install_db --user=mysql
+		mysqld --bootstrap --verbose=0 < /root/redmine/data/config/createdb.sql
 	fi
-
-cat > /root/redmine/data/config/createdb.sql <<EOF
-  USE mysql;
-  FLUSH PRIVILEGES;
-  GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-  UPDATE user SET password=PASSWORD("$DB_PASS") WHERE user='root';
-
-  CREATE DATABASE redmine_production;
-  CREATE USER '$DB_USER' IDENTIFIED BY '$DB_PASS';
-  GRANT ALL ON redmine_production.* TO '$DB_USER'@'%' IDENTIFIED BY '$DB_PASS';
-  GRANT ALL ON redmine_production.* TO '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
-  FLUSH PRIVILEGES;
-EOF
-
-  mysqld --bootstrap --verbose=0 < /root/redmine/data/config/createdb.sql
 
   mysqld_safe --user=mysql &
 fi
