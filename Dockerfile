@@ -16,7 +16,17 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv C3173AA6 \
  && gem install --no-document bundler \
  && rm -rf /var/lib/apt/lists/* # 20140918
 
+RUN sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
 RUN sed -i 's/key_buffer/key_buffer_size/g' /etc/mysql/my.cnf
+
+# Setup mysql character to utf-8
+RUN sed -i "/\[client]/a default-character-set=utf8" /etc/mysql/my.cnf
+RUN sed -i "/\[mysqld]/a skip-character-set-client-handshake" /etc/mysql/my.cnf
+RUN sed -i "/\[mysqld]/a collation-server=utf8_unicode_ci" /etc/mysql/my.cnf
+RUN sed -i "/\[mysqld]/a character-set-server=utf8" /etc/mysql/my.cnf
+RUN sed -i "/\[mysqld]/a init_connect='SET NAMES utf8'" /etc/mysql/my.cnf
+RUN sed -i "/\[mysqld]/a init_connect='SET collation_connection = utf8_unicode_ci'" /etc/mysql/my.cnf
+RUN sed -i "/\[mysql]/a default-character-set=utf8" /etc/mysql/my.cnf
 
 ADD assets/setup/ /app/setup/
 RUN chmod 755 /app/setup/install
