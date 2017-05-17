@@ -130,6 +130,9 @@ cat > /root/redmine/data/config/createdb.sql <<EOF
   FLUSH PRIVILEGES;
 EOF
 
+echo "DB_HOST: ${DB_HOST}"
+echo "DB_TYPE: ${DB_TYPE}"
+
 # start mysql server if ${DB_HOST} is localhost
 if [ "${DB_HOST}" == "localhost" ]; then
 	if [ "${DB_TYPE}" == "postgres" ]; then
@@ -138,8 +141,8 @@ if [ "${DB_HOST}" == "localhost" ]; then
 	fi
 
 	# fix permissions and ownership of /var/lib/mysql
-	chown -R mysql:mysql /var/lib/mysql
-	chmod 700 /var/lib/mysql
+	#chown -R mysql:mysql /var/lib/mysql
+	#chmod 700 /var/lib/mysql
 
 	# initialize MySQL data directory
 	if [ ! -d /var/lib/mysql/mysql ]; then
@@ -147,7 +150,8 @@ if [ "${DB_HOST}" == "localhost" ]; then
 		mysqld --bootstrap --verbose=0 < /root/redmine/data/config/createdb.sql
 	fi
 
-  mysqld_safe --user=mysql &
+  #mysqld_safe --user=mysql &
+  service mysql restart
 fi
 
 # is a memcached container linked?
