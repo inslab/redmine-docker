@@ -46,6 +46,7 @@ ENV REDMINE_RELATIVE_URL_ROOT /redmine
 
 VOLUME ["/root/redmine/data"]
 VOLUME ["/var/log/redmine"]
+VOLUME ["/var/log/mysql"]
 VOLUME ["/var/lib/mysql"]
 
 ENTRYPOINT ["/app/init"]
