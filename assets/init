@@ -148,7 +148,6 @@ if [ "${DB_HOST}" == "localhost" ]; then
 	fi
 
   mysqld_safe --user=mysql &
-  #service mysql restart
 fi
 
 # is a memcached container linked?
@@ -376,7 +375,7 @@ case "${DB_TYPE}" in
     prog="${prog} -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t 1"
     ;;
 esac
-timeout=300
+timeout=60
 while ! ${prog} >/dev/null 2>&1
 do
   timeout=$(expr $timeout - 1)
